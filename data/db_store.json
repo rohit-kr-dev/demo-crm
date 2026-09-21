@@ -1,0 +1,369 @@
+{
+  "users": {
+    "usr_admin": {
+      "id": "usr_admin",
+      "name": "System Administrator",
+      "email": "admin@demo.com",
+      "phone": "9876500001",
+      "password": "admin@1234",
+      "role": "SUPER_ADMIN",
+      "title": "Executive System Administrator",
+      "status": "Active",
+      "projects": [
+        "All Projects"
+      ],
+      "permissions": [
+        "*"
+      ],
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80",
+      "createdAt": "2026-09-21T05:30:06.961Z",
+      "updatedAt": "2026-09-21T05:30:06.961Z",
+      "username": "admin"
+    },
+    "usr_manager": {
+      "id": "usr_manager",
+      "name": "Sales Manager",
+      "email": "manager@demo.com",
+      "phone": "9876500002",
+      "password": "mgr@1234",
+      "role": "MANAGER",
+      "title": "Sales & Operations Manager",
+      "status": "Active",
+      "projects": [
+        "All Projects"
+      ],
+      "permissions": [
+        "assign_leads",
+        "assign_tasks",
+        "read_leads",
+        "edit_leads",
+        "log_calls",
+        "log_whatsapp",
+        "schedule_visits"
+      ],
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80",
+      "createdAt": "2026-09-21T05:30:06.961Z",
+      "updatedAt": "2026-09-21T05:30:06.961Z",
+      "username": "mgr"
+    },
+    "usr_advisor_1": {
+      "id": "usr_advisor_1",
+      "name": "Senior Sales Advisor",
+      "email": "sales@demo.com",
+      "phone": "9876500003",
+      "password": "sales@1234",
+      "role": "SALES",
+      "title": "Senior Sales Advisor (East Zone)",
+      "status": "Active",
+      "projects": [
+        "Skyline Residences",
+        "Harbor View Homes",
+        "East District"
+      ],
+      "permissions": [
+        "read_assigned_leads",
+        "log_calls",
+        "log_whatsapp",
+        "schedule_visits",
+        "update_stage",
+        "add_remarks"
+      ],
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80",
+      "createdAt": "2026-09-21T05:30:06.961Z",
+      "updatedAt": "2026-09-21T05:30:06.961Z",
+      "username": "sales"
+    },
+    "usr_advisor_2": {
+      "id": "usr_advisor_2",
+      "name": "Relationship Manager",
+      "email": "advisor@demo.com",
+      "phone": "9876500004",
+      "password": "advisor@1234",
+      "role": "SALES",
+      "title": "Senior Relationship Manager (North Zone)",
+      "status": "Active",
+      "projects": [
+        "Garden Court",
+        "Lakefront Commons",
+        "North District"
+      ],
+      "permissions": [
+        "read_assigned_leads",
+        "log_calls",
+        "log_whatsapp",
+        "schedule_visits",
+        "update_stage",
+        "add_remarks"
+      ],
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80",
+      "createdAt": "2026-09-21T05:30:06.961Z",
+      "updatedAt": "2026-09-21T05:30:06.961Z",
+      "username": "advisor"
+    }
+  },
+  "leads": {
+    "demo_001": {
+      "id": "demo_001",
+      "inquiryId": "demo_001",
+      "name": "Jordan Taylor",
+      "phone": "+91 90000 00001",
+      "email": "jordan.taylor@example.test",
+      "property": "Skyline Residences",
+      "projectName": "Skyline Residences",
+      "builderName": "Demo Development Co.",
+      "price": "Demo pricing",
+      "budget": "Demo pricing",
+      "locationZone": "Central District",
+      "subLocality": "Civic Square",
+      "displayLocation": "Central District • Civic Square",
+      "cityName": "Demo City",
+      "source": "demo",
+      "status": "new",
+      "assignedTo": "Unassigned",
+      "taskPriority": "NORMAL",
+      "notes": "Interested in a two-bedroom demo unit.",
+      "lastRemark": "Interested in a two-bedroom demo unit.",
+      "createdAt": "2026-09-20T16:39:27.678Z",
+      "updatedAt": "2026-09-20T16:39:27.678Z"
+    },
+    "demo_002": {
+      "id": "demo_002",
+      "inquiryId": "demo_002",
+      "name": "Casey Morgan",
+      "phone": "+91 90000 00002",
+      "email": "casey.morgan@example.test",
+      "property": "Skyline Residences",
+      "projectName": "Skyline Residences",
+      "builderName": "Demo Development Co.",
+      "price": "Demo pricing",
+      "budget": "Demo pricing",
+      "locationZone": "North District",
+      "subLocality": "Riverside",
+      "displayLocation": "North District • Riverside",
+      "cityName": "Demo City",
+      "source": "demo",
+      "status": "site_visit",
+      "assignedTo": "Unassigned",
+      "taskPriority": "NORMAL",
+      "notes": "Requested a sample floor plan.",
+      "lastRemark": "Requested a sample floor plan.",
+      "createdAt": "2026-09-20T16:39:27.678Z",
+      "updatedAt": "2026-09-20T16:39:27.678Z"
+    },
+    "demo_003": {
+      "id": "demo_003",
+      "inquiryId": "demo_003",
+      "name": "Avery Chen",
+      "phone": "+91 90000 00003",
+      "email": "avery.chen@example.test",
+      "property": "Skyline Residences",
+      "projectName": "Skyline Residences",
+      "builderName": "Demo Development Co.",
+      "price": "Demo pricing",
+      "budget": "Demo pricing",
+      "locationZone": "East District",
+      "subLocality": "Green Park",
+      "displayLocation": "East District • Green Park",
+      "cityName": "Demo City",
+      "source": "demo",
+      "status": "won",
+      "assignedTo": "Unassigned",
+      "taskPriority": "NORMAL",
+      "notes": "Demo site visit scheduled for this week.",
+      "lastRemark": "Demo site visit scheduled for this week.",
+      "createdAt": "2026-09-20T16:39:27.678Z",
+      "updatedAt": "2026-09-20T16:39:27.678Z"
+    },
+    "demo_004": {
+      "id": "demo_004",
+      "inquiryId": "demo_004",
+      "name": "Sam Rivera",
+      "phone": "+91 90000 00004",
+      "email": "sam.rivera@example.test",
+      "property": "Harbor View Homes",
+      "projectName": "Harbor View Homes",
+      "builderName": "Demo Development Co.",
+      "price": "Demo pricing",
+      "budget": "Demo pricing",
+      "locationZone": "West District",
+      "subLocality": "Innovation Avenue",
+      "displayLocation": "West District • Innovation Avenue",
+      "cityName": "Demo City",
+      "source": "demo",
+      "status": "negotiation",
+      "assignedTo": "Unassigned",
+      "taskPriority": "NORMAL",
+      "notes": "Comparing two sample unit options.",
+      "lastRemark": "Comparing two sample unit options.",
+      "createdAt": "2026-09-20T16:39:27.678Z",
+      "updatedAt": "2026-09-20T16:39:27.678Z"
+    },
+    "demo_005": {
+      "id": "demo_005",
+      "inquiryId": "demo_005",
+      "name": "Taylor Brooks",
+      "phone": "+91 90000 00005",
+      "email": "taylor.brooks@example.test",
+      "property": "Harbor View Homes",
+      "projectName": "Harbor View Homes",
+      "builderName": "Demo Development Co.",
+      "price": "Demo pricing",
+      "budget": "Demo pricing",
+      "locationZone": "South District",
+      "subLocality": "Lakeside",
+      "displayLocation": "South District • Lakeside",
+      "cityName": "Demo City",
+      "source": "demo",
+      "status": "contacted",
+      "assignedTo": "Unassigned",
+      "taskPriority": "NORMAL",
+      "notes": "Demo booking confirmed.",
+      "lastRemark": "Demo booking confirmed.",
+      "createdAt": "2026-09-20T16:39:27.678Z",
+      "updatedAt": "2026-09-20T16:39:27.678Z"
+    },
+    "demo_006": {
+      "id": "demo_006",
+      "inquiryId": "demo_006",
+      "name": "Morgan Lee",
+      "phone": "+91 90000 00006",
+      "email": "morgan.lee@example.test",
+      "property": "Garden Court",
+      "projectName": "Garden Court",
+      "builderName": "Demo Development Co.",
+      "price": "Demo pricing",
+      "budget": "Demo pricing",
+      "locationZone": "Central District",
+      "subLocality": "Museum Road",
+      "displayLocation": "Central District • Museum Road",
+      "cityName": "Demo City",
+      "source": "demo",
+      "status": "lost",
+      "assignedTo": "Unassigned",
+      "taskPriority": "NORMAL",
+      "notes": "Demo inquiry closed.",
+      "lastRemark": "Demo inquiry closed.",
+      "createdAt": "2026-09-20T16:39:27.678Z",
+      "updatedAt": "2026-09-20T16:39:27.678Z"
+    },
+    "MAN_918277466840__2026-09-20": {
+      "inquiryId": "MAN_918277466840__2026-09-20",
+      "id": "MAN_918277466840__2026-09-20",
+      "name": "Rohit Kumar P Begur",
+      "phone": "+918277466840",
+      "email": "rohitkumarpbegur@gmail.com",
+      "project": " .",
+      "property": " .",
+      "notes": "kllklk",
+      "budget": "1cr",
+      "city": "Ajjampura",
+      "locationZone": "Ajjampura",
+      "subLocality": "Ajjampura",
+      "displayLocation": "Ajjampura • Ajjampura",
+      "source": "website",
+      "status": "contacted",
+      "buyerType": "Buyer",
+      "intent": "Purchase",
+      "timeline": "30–90 days",
+      "leadScore": 90,
+      "recommendedProperties": [
+        "Skyline Residences",
+        "Harbor View Homes",
+        "Garden Court"
+      ],
+      "nextBestAction": "Send the curated property shortlist and schedule a needs-analysis call.",
+      "assignedTo": "Senior Sales Advisor",
+      "assignedToEmail": "sales@demo.com",
+      "createdBy": "Senior Sales Advisor",
+      "createdAt": "2026-09-20T18:45:31.147Z",
+      "updatedAt": "2026-09-20T18:45:43.270Z",
+      "lastContactedAt": "2026-09-20T18:45:43.270Z",
+      "lastRemark": "Client marked as active high-intent prospect",
+      "lastRemarkAt": "2026-09-20T18:45:43.270Z",
+      "rnrCount": 0,
+      "rnrStatus": null,
+      "subStatus": "Prospect (Client Interested)"
+    }
+  },
+  "activities": {
+    "demo_001": [
+      {
+        "id": "activity_demo_001",
+        "type": "DEMO_RECORD_CREATED",
+        "title": "Demo inquiry created",
+        "details": "Interested in a two-bedroom demo unit.",
+        "createdAt": "2026-09-20T16:39:27.678Z"
+      }
+    ],
+    "demo_002": [
+      {
+        "id": "activity_demo_002",
+        "type": "DEMO_RECORD_CREATED",
+        "title": "Demo inquiry created",
+        "details": "Requested a sample floor plan.",
+        "createdAt": "2026-09-20T16:39:27.678Z"
+      }
+    ],
+    "demo_003": [
+      {
+        "id": "activity_demo_003",
+        "type": "DEMO_RECORD_CREATED",
+        "title": "Demo inquiry created",
+        "details": "Demo site visit scheduled for this week.",
+        "createdAt": "2026-09-20T16:39:27.678Z"
+      }
+    ],
+    "demo_004": [
+      {
+        "id": "activity_demo_004",
+        "type": "DEMO_RECORD_CREATED",
+        "title": "Demo inquiry created",
+        "details": "Comparing two sample unit options.",
+        "createdAt": "2026-09-20T16:39:27.678Z"
+      }
+    ],
+    "demo_005": [
+      {
+        "id": "activity_demo_005",
+        "type": "DEMO_RECORD_CREATED",
+        "title": "Demo inquiry created",
+        "details": "Demo booking confirmed.",
+        "createdAt": "2026-09-20T16:39:27.678Z"
+      }
+    ],
+    "demo_006": [
+      {
+        "id": "activity_demo_006",
+        "type": "DEMO_RECORD_CREATED",
+        "title": "Demo inquiry created",
+        "details": "Demo inquiry closed.",
+        "createdAt": "2026-09-20T16:39:27.678Z"
+      }
+    ],
+    "MAN_918277466840__2026-09-20": [
+      {
+        "id": "act_1789929931326_818",
+        "type": "NOTE",
+        "title": "Live demo lead captured",
+        "details": "Lead profile created by Senior Sales Advisor. Score: 90/100. Next action: Send the curated property shortlist and schedule a needs-analysis call.",
+        "advisor": "Senior Sales Advisor",
+        "createdAt": "2026-09-20T18:45:31.147Z"
+      },
+      {
+        "id": "act_1789929943277_332",
+        "type": "CALL_LOG",
+        "title": "🌟 Call: Prospect (Client Interested)",
+        "details": "Feedback: Client marked as active high-intent prospect",
+        "outcome": "Prospect (Client Interested)",
+        "rnrAttempt": null,
+        "duration": "1-3 mins",
+        "notes": "Client marked as active high-intent prospect",
+        "nextCallDate": null,
+        "nextCallTime": null,
+        "nextCallReason": null,
+        "advisor": "Senior Sales Advisor",
+        "createdAt": "2026-09-20T18:45:43.270Z"
+      }
+    ]
+  }
+}

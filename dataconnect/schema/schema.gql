@@ -1,0 +1,38 @@
+type Account @table {
+  name: String!
+  email: String!
+  subscriptionTier: String
+}
+
+type Client @table {
+  name: String!
+  email: String!
+  account: Account!
+  phone: String
+  industry: String
+  website: String
+}
+
+type Deal @table {
+  title: String!
+  stage: String!
+  value: Float!
+  client: Client!
+  closeDate: Date
+  description: String
+}
+
+type Interaction @table {
+  type: String!
+  summary: String!
+  client: Client!
+  timestamp: Timestamp
+}
+
+type Task @table {
+  title: String!
+  dueDate: Date!
+  client: Client!
+  isCompleted: Boolean
+  assignedTo: String
+}

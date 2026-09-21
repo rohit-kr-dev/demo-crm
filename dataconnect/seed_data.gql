@@ -1,0 +1,27 @@
+mutation SeedDatabase @transaction @auth(level: USER) {
+  account_insertMany(data: [
+    { name: "Tech Corp", email: "contact@techcorp.com", subscriptionTier: "Gold" },
+    { name: "Creative Studio", email: "hello@creative.studio", subscriptionTier: "Silver" },
+    { name: "Retail Giant", email: "support@retailgiant.com", subscriptionTier: "Platinum" }
+  ])
+  client_insertMany(data: [
+    { name: "Alice Johnson", email: "alice@techcorp.com", account: {id_expr: "response.account_insertMany[0].id"}, phone: "555-0101", industry: "Tech", website: "https://techcorp.com" },
+    { name: "Bob Smith", email: "bob@creative.studio", account: {id_expr: "response.account_insertMany[1].id"}, phone: "555-0102", industry: "Design", website: "https://creative.studio" },
+    { name: "Charlie Davis", email: "charlie@retailgiant.com", account: {id_expr: "response.account_insertMany[2].id"}, phone: "555-0103", industry: "Retail", website: "https://retailgiant.com" }
+  ])
+  deal_insertMany(data: [
+    { title: "Cloud Migration", stage: "Negotiation", value: 50000.0, client: {id_expr: "response.client_insertMany[0].id"}, closeDate: "2024-12-01" },
+    { title: "Brand Identity", stage: "Discovery", value: 15000.0, client: {id_expr: "response.client_insertMany[1].id"}, closeDate: "2024-11-15" },
+    { title: "POS System Upgrade", stage: "Closed Won", value: 120000.0, client: {id_expr: "response.client_insertMany[2].id"}, closeDate: "2024-10-01" }
+  ])
+  interaction_insertMany(data: [
+    { type: "Email", summary: "Discussed cloud project scope.", client: {id_expr: "response.client_insertMany[0].id"}, timestamp: "2024-09-01T10:00:00Z" },
+    { type: "Call", summary: "Initial design consultation.", client: {id_expr: "response.client_insertMany[1].id"}, timestamp: "2024-09-02T14:30:00Z" },
+    { type: "Meeting", summary: "Finalized hardware specs.", client: {id_expr: "response.client_insertMany[2].id"}, timestamp: "2024-09-03T09:00:00Z" }
+  ])
+  task_insertMany(data: [
+    { title: "Prepare architecture diagram", dueDate: "2024-09-10", client: {id_expr: "response.client_insertMany[0].id"}, isCompleted: false, assignedTo: "DevTeam" },
+    { title: "Create mood board", dueDate: "2024-09-08", client: {id_expr: "response.client_insertMany[1].id"}, isCompleted: true, assignedTo: "DesignTeam" },
+    { title: "Review hardware quotes", dueDate: "2024-09-05", client: {id_expr: "response.client_insertMany[2].id"}, isCompleted: true, assignedTo: "Procurement" }
+  ])
+}

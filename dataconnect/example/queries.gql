@@ -1,0 +1,99 @@
+mutation CreateAccountData @auth(level: USER) {
+  account_insert(data: {name: "Tech Solutions", email: "contact@tech.com", subscriptionTier: "Enterprise"})
+}
+
+mutation UpdateAccount($id: UUID!, $tier: String) @auth(level: USER) {
+  account_update(id: $id, data: {subscriptionTier: $tier})
+}
+
+mutation DeleteAccount($id: UUID!) @auth(level: USER) {
+  account_delete(id: $id)
+}
+
+query GetAccount($id: UUID!) @auth(level: USER) {
+  account(id: $id) { name email subscriptionTier }
+}
+
+query ListAccounts @auth(level: USER) {
+  accounts(limit: 50) { name email }
+}
+
+mutation CreateClientData($accountId: UUID!) @auth(level: USER) {
+  client_insert(data: {name: "Acme Corp", email: "info@acme.com", accountId: $accountId})
+}
+
+mutation UpdateClient($id: UUID!, $phone: String) @auth(level: USER) {
+  client_update(id: $id, data: {phone: $phone})
+}
+
+mutation DeleteClient($id: UUID!) @auth(level: USER) {
+  client_delete(id: $id)
+}
+
+query GetClient($id: UUID!) @auth(level: USER) {
+  client(id: $id) { name email phone }
+}
+
+query ListClients @auth(level: USER) {
+  clients(limit: 50) { name industry website }
+}
+
+mutation CreateDealData($clientId: UUID!) @auth(level: USER) {
+  deal_insert(data: {title: "Q4 Renewal", stage: "Prospecting", value: 50000.0, clientId: $clientId})
+}
+
+mutation UpdateDeal($id: UUID!, $stage: String) @auth(level: USER) {
+  deal_update(id: $id, data: {stage: $stage})
+}
+
+mutation DeleteDeal($id: UUID!) @auth(level: USER) {
+  deal_delete(id: $id)
+}
+
+query GetDeal($id: UUID!) @auth(level: USER) {
+  deal(id: $id) { title stage value closeDate }
+}
+
+query ListDeals @auth(level: USER) {
+  deals(orderBy: [{value: DESC}], limit: 20) { title stage value }
+}
+
+mutation CreateInteractionData($clientId: UUID!) @auth(level: USER) {
+  interaction_insert(data: {type: "Call", summary: "Follow up on contract", clientId: $clientId})
+}
+
+mutation UpdateInteraction($id: UUID!, $summary: String) @auth(level: USER) {
+  interaction_update(id: $id, data: {summary: $summary})
+}
+
+mutation DeleteInteraction($id: UUID!) @auth(level: USER) {
+  interaction_delete(id: $id)
+}
+
+query GetInteraction($id: UUID!) @auth(level: USER) {
+  interaction(id: $id) { type summary timestamp }
+}
+
+query ListInteractions @auth(level: USER) {
+  interactions(limit: 50) { type summary }
+}
+
+mutation CreateTaskData($clientId: UUID!) @auth(level: USER) {
+  task_insert(data: {title: "Email Client", dueDate: "2023-12-31", clientId: $clientId, assignedTo: "User1"})
+}
+
+mutation UpdateTask($id: UUID!, $isCompleted: Boolean) @auth(level: USER) {
+  task_update(id: $id, data: {isCompleted: $isCompleted})
+}
+
+mutation DeleteTask($id: UUID!) @auth(level: USER) {
+  task_delete(id: $id)
+}
+
+query GetTask($id: UUID!) @auth(level: USER) {
+  task(id: $id) { title dueDate isCompleted }
+}
+
+query ListTasks @auth(level: USER) {
+  tasks(where: {isCompleted: {eq: false}}, limit: 50) { title dueDate }
+}

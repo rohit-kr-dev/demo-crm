@@ -1,0 +1,23 @@
+{
+  "name": "realtime-estate-crm",
+  "version": "2.0.0",
+  "description": "Production Real Estate CRM with Live Firebase Firestore Sync and Authentication",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "@dataconnect/admin-generated": "file:src/dataconnect-admin-generated",
+    "axios": "^1.7.9",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.7.0",
+    "fast-xml-parser": "^5.11.1",
+    "firebase-admin": "^13.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

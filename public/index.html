@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horizon Realty — Super Admin Realtime CRM</title>
+  <link rel="icon" type="image/png" href="/logo.svg">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffdf5',
+              100: '#fef9e7',
+              200: '#fdf0c5',
+              300: '#fbe297',
+              400: '#f7ce61',
+              500: '#d97706', // High-contrast warm luxury gold/amber
+              600: '#b45309',
+              700: '#92400e',
+              800: '#78350f',
+              900: '#451a03',
+            },
+            surface: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617'
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- SheetJS (xlsx) for in-browser Excel / CSV spreadsheet parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- Firebase Web Client SDK & Google Analytics Initialization -->
+  <script type="module" src="/firebase-config.js"></script>
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .glow-gold { box-shadow: 0 4px 25px -3px rgba(217, 119, 6, 0.22); }
+    .glow-purple { box-shadow: 0 4px 25px -3px rgba(147, 51, 234, 0.18); }
+    
+    .glass-panel {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .glass-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      background: #ffffff;
+      border-color: #d97706;
+      box-shadow: 0 6px 20px -4px rgba(217, 119, 6, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .badge-superadmin {
+      background: linear-gradient(135deg, #fef3c7, #f3e8ff);
+      border: 1px solid #fcd34d;
+      color: #92400e;
+    }
+
+    .badge-followup {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #b45309;
+    }
+
+    .tab-section-active-all {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.25);
+    }
+    .tab-section-active-99 {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+      box-shadow: 0 4px 14px -2px rgba(245, 158, 11, 0.25);
+    }
+    .tab-section-active-meta {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1e40af;
+      box-shadow: 0 4px 14px -2px rgba(59, 130, 246, 0.25);
+    }
+    .tab-section-active-other {
+      background: #faf5ff;
+      border-color: #a855f7;
+      color: #6b21a8;
+      box-shadow: 0 4px 14px -2px rgba(168, 85, 247, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen antialiased selection:bg-amber-500 selection:text-white relative overflow-x-hidden">
+
+  <!-- Subtle Executive Ambient Gradient (Crisp Daylight Contrast) -->
+  <div class="fixed top-0 left-1/4 w-[36rem] h-[36rem] bg-amber-200/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 right-1/4 w-[36rem] h-[36rem] bg-blue-200/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-md w-full pointer-events-none"></div>
+
+  <!-- ========================================== -->
+  <!-- 1. LUXURY MOBILE OTP LOGIN VIEW (WHITE)    -->
+  <!-- ========================================== -->
+  <div id="view-login" class="min-h-screen flex items-center justify-center p-4 relative">
+    <div class="max-w-md w-full glass-panel rounded-3xl p-8 shadow-xl space-y-6 border border-slate-200 relative bg-white">
+      
+      <!-- Brand Crest -->
+      <div class="text-center space-y-3">
+        <div class="relative inline-block">
+          <img src="/logo.svg" alt="Horizon Realty" class="w-20 h-20 mx-auto object-contain rounded-2xl shadow-lg border border-amber-400/40 p-1.5 bg-white glow-gold">
+          <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></span>
+        </div>
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
+            Horizon Realty
+          </h2>
+          <p class="text-xs text-amber-700 font-extrabold uppercase tracking-widest mt-0.5">Role-Based Team Login</p>
+        </div>
+      </div>
+
+      <!-- PHONE-FIRST VERIFICATION: Checks role and database before password -->
+      <div id="auth-box-phone" class="space-y-4">
+        
+        <!-- Step 1: Check Registered Phone Number -->
+        <form id="form-check-phone" onsubmit="handleCheckPhone(event)" class="space-y-4">
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Enter Registered Mobile Number</label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3 font-mono font-bold text-xs text-slate-500 border-r border-slate-300 pr-2">+91</span>
+              <input type="tel" id="login-phone" required maxlength="10" value="" placeholder="Enter 10-digit mobile number" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-16 pr-3.5 py-2.5 text-xs text-slate-900 font-mono font-bold tracking-wider placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition">
+            </div>
+          </div>
+
+          <div id="phone-check-error" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-3 rounded-xl text-center font-bold"></div>
+
+          <button type="submit" id="btn-check-phone" class="w-full py-3 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-black rounded-xl text-xs tracking-wider uppercase shadow-md active:scale-[0.98] transition flex items-center justify-center gap-2">
+            <span>Continue</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <!-- Step 2A: First-Time User Setup Password (Unlocked ONLY when phone matches Team & Roles) -->
+        <form id="form-first-time-password" onsubmit="handleFirstTimeSetPassword(event)" class="hidden space-y-4">
+          <div class="p-3 bg-purple-50 rounded-2xl border border-purple-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-purple-900 font-extrabold text-xs">
+                <i class="fa-solid fa-wand-magic-sparkles text-purple-600"></i>
+                <span id="first-time-user-badge">First-Time Security Setup</span>
+              </div>
+              <button type="button" onclick="resetToPhoneStep()" class="text-[11px] font-bold text-purple-700 hover:text-purple-900 underline">Change</button>
+            </div>
+            <p id="first-time-user-desc" class="text-[11px] text-purple-800 font-medium">Please create your personal security password. After setup, you will use this password to log in.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Create New Password</label>
+            <div class="relative">
+              <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+              <input type="password" id="new-password-input" required minlength="4" placeholder="Minimum 4 characters" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition font-medium">
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Confirm New Password</label>
+            <div class="relative">
+              <i class="fa-solid fa-shield-check absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+              <input type="password" id="confirm-password-input" required minlength="4" placeholder="Re-enter password" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition font-medium">
+            </div>
+          </div>
+
+          <div id="password-setup-error" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-3 rounded-xl text-center font-bold"></div>
+
+          <button type="submit" id="btn-save-first-password" class="w-full py-3 bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 hover:from-purple-700 hover:to-indigo-900 text-white font-black rounded-xl text-xs tracking-wider uppercase shadow-md active:scale-[0.98] transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-key"></i> Save Password &amp; Enter CRM
+          </button>
+        </form>
+
+        <!-- Step 2B: Returning User Password Login (Unlocked ONLY when phone matches Team & Roles) -->
+        <form id="form-returning-password" onsubmit="handleReturningPasswordLogin(event)" class="hidden space-y-4">
+          <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-user-check text-amber-600 text-sm"></i>
+              <div>
+                <div id="returning-user-name" class="text-xs font-black text-amber-950">Team Member</div>
+                <div id="returning-user-phone" class="text-[10px] font-mono text-amber-800 font-bold">+91</div>
+              </div>
+            </div>
+            <button type="button" onclick="resetToPhoneStep()" class="text-[11px] font-bold text-amber-700 hover:text-amber-900 underline">Change</button>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="block text-xs font-bold text-slate-700">Security Password</label>
+            <div class="relative">
+              <i class="fa-solid fa-shield-halved absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+              <input type="password" id="returning-password-input" required placeholder="Enter your password" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition font-medium">
+            </div>
+          </div>
+
+          <div id="returning-password-error" class="hidden text-xs text-rose-700 bg-rose-50 border border-rose-200 p-3 rounded-xl text-center font-bold"></div>
+
+          <button type="submit" id="btn-returning-login" class="w-full py-3 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-black rounded-xl text-xs tracking-wider uppercase shadow-md active:scale-[0.98] transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock-open"></i> Login to CRM
+          </button>
+        </form>
+
+      </div>
+
+      <div class="mt-5 pt-4 border-t border-slate-200">
+        <div class="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Quick demo access</div>
+        <form onsubmit="handleLogin(event)" class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2">
+          <input id="login-identifier" required placeholder="Username: sales / mgr / admin" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none focus:border-indigo-500">
+          <input id="login-password" required type="password" placeholder="Password" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none focus:border-indigo-500">
+          <button id="btn-login-submit" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider">Sign in</button>
+        </form>
+        <div id="login-error" class="hidden mt-2 text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2"></div>
+        <p class="mt-2 text-[10px] text-slate-500 font-medium">Demo accounts: <span class="font-bold text-slate-700">sales / sales@1234</span> · <span class="font-bold text-slate-700">mgr / mgr@1234</span> · <span class="font-bold text-slate-700">admin / admin@1234</span></p>
+      </div>
+
+      <div class="border-t border-slate-200 pt-3 text-center">
+        <p class="text-[11px] text-slate-500 font-medium">Horizon Realty Enterprise Real-Time CRM • Cloud Firestore 2026</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. MASTER REALTIME CRM (WHITE SIDEBAR)     -->
+  <!-- ========================================== -->
+  <div id="view-dashboard" class="hidden min-h-screen flex flex-col md:flex-row bg-slate-50">
+    
+    <!-- LEFT SIDEBAR (CLEAN WHITE PLATINUM) -->
+    <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 p-4 sticky top-0 md:h-screen z-40 shadow-sm">
+      <div class="space-y-4">
+        
+        <!-- Brand Crest -->
+        <div class="flex items-center gap-3 px-2 py-1">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-md shadow-amber-500/20 border border-amber-400 shrink-0">
+            <i class="fa-solid fa-gem text-white text-base"></i>
+          </div>
+          <div class="truncate">
+            <div class="font-black text-slate-900 text-xs uppercase tracking-wider">HORIZON</div>
+            <div class="text-[9px] text-amber-700 font-extrabold uppercase tracking-widest">Master Real Estate CRM</div>
+          </div>
+        </div>
+
+        <!-- Super Admin Status Banner -->
+        <div id="sidebar-role-banner" class="px-3 py-2 rounded-xl badge-superadmin flex items-center justify-between text-[11px] shadow-sm">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-crown text-amber-700 text-xs" id="sidebar-role-icon"></i>
+            <span class="font-black text-amber-900 text-[10px] uppercase" id="sidebar-role-title">Super Admin Authority</span>
+          </div>
+          <span class="text-[9px] font-black uppercase text-amber-800 font-mono" id="sidebar-role-tag">ROOT</span>
+        </div>
+
+        <!-- 99acres Sync Status -->
+        <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-[11px]">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="font-bold text-slate-700 text-[10px]">99acres Live Sync:</span>
+          </div>
+          <span class="text-[9px] font-black uppercase text-amber-700 font-mono">15m Auto</span>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="space-y-1">
+          <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider px-2 pt-1">Main Views</div>
+          <nav class="space-y-1">
+            <button id="nav-pipeline" onclick="switchMainView('pipeline')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-amber-900 bg-amber-50 border border-amber-300 transition shadow-sm">
+              <i class="fa-solid fa-table-columns text-sm w-4 text-amber-700"></i>
+              <span>Lead Pipeline</span>
+              <span id="nav-badge-pipeline" class="ml-auto px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500 text-white shadow-sm">0</span>
+            </button>
+
+            <button id="nav-directory" onclick="switchMainView('directory')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+              <i class="fa-solid fa-list-check text-sm w-4 text-slate-500"></i>
+              <span>Master Directory</span>
+            </button>
+
+            <button id="nav-analytics" onclick="switchMainView('analytics')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+              <i class="fa-solid fa-chart-line text-sm w-4 text-slate-500"></i>
+              <span>Executive Analytics</span>
+            </button>
+
+            <button id="nav-team" onclick="switchMainView('team')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition">
+              <i class="fa-solid fa-user-shield text-sm w-4 text-slate-500"></i>
+              <span>Team &amp; Roles (RBAC)</span>
+              <span id="nav-badge-team" class="ml-auto px-2 py-0.5 rounded-full text-[9px] font-black bg-purple-100 text-purple-800 border border-purple-300">Super Admin</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Quick Sub-List Shortcuts in Sidebar -->
+        <div class="space-y-1 pt-2 border-t border-slate-200">
+          <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider px-2">Lead Sub-Lists</div>
+          <div class="space-y-1">
+            <button onclick="switchPipelineSection('99acres'); switchMainView('pipeline');" class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-900 transition">
+              <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Demo Portal Leads</span>
+              <span id="sidebar-cnt-99" class="text-[10px] font-mono font-black text-amber-700">0</span>
+            </button>
+            <button onclick="switchPipelineSection('meta'); switchMainView('pipeline');" class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-900 transition">
+              <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Meta Leads</span>
+              <span id="sidebar-cnt-meta" class="text-[10px] font-mono font-black text-blue-700">0</span>
+            </button>
+            <button onclick="switchPipelineSection('other'); switchMainView('pipeline');" class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-purple-50 hover:text-purple-900 transition">
+              <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Other Leads</span>
+              <span id="sidebar-cnt-other" class="text-[10px] font-mono font-black text-purple-700">0</span>
+            </button>
+            <button onclick="switchPipelineSection('all'); switchMainView('pipeline');" class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition">
+              <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-slate-700"></span> All Consolidated</span>
+              <span id="sidebar-cnt-all" class="text-[10px] font-mono font-black text-slate-800">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Team Status & Regional Workload in Sidebar -->
+        <div class="space-y-1.5 pt-2 border-t border-slate-200">
+          <div class="flex items-center justify-between px-2">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Team Status &amp; Zones</span>
+            <span class="text-[9px] font-black text-amber-700 uppercase bg-amber-100 px-1.5 py-0.2 rounded border border-amber-300">Live</span>
+          </div>
+          <div id="sidebar-team-status-list" class="space-y-1 px-1">
+            <!-- Dynamic Priya, Arjun, Maya compact status rows -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Current User Profile & Actions -->
+      <div class="pt-4 border-t border-slate-200 space-y-3">
+        <div class="flex items-center gap-3 px-1">
+          <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120" class="w-9 h-9 rounded-xl object-cover border border-amber-500/40 shrink-0 shadow-sm">
+          <div class="truncate">
+            <div id="user-name" class="font-black text-slate-900 text-xs truncate">Avery Morgan</div>
+            <div id="user-role" class="text-[10px] text-amber-700 font-extrabold uppercase tracking-wider font-mono">SUPER ADMIN</div>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <button onclick="exportLeadsToCSV()" class="w-full py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 shadow-2xs" title="Export Current View Leads to CSV">
+            <i class="fa-solid fa-file-arrow-down text-emerald-600 text-xs"></i> Export Leads (CSV)
+          </button>
+          <div class="flex gap-2">
+            <button onclick="trigger99AcresSync()" id="btn-sync-99acres" class="flex-1 py-2 px-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-[10px] font-bold transition flex items-center justify-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-rotate text-[10px] text-amber-700" id="sync-icon-spinner"></i> Sync 99acres
+            </button>
+            <button onclick="handleLogout()" class="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-[10px] font-bold transition" title="Sign Out">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEWPORT (HIGH CONTRAST WHITE / LIGHT EXECUTIVE) -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen p-4 md:p-6 space-y-5">
+      
+      <!-- IT SUPER ADMIN PERSONA SWITCHER / "ACT AS" AUDIT BAR -->
+      <div id="it-control-bar" class="hidden glass-panel rounded-2xl p-3.5 border border-amber-300 bg-gradient-to-r from-amber-50 via-white to-purple-50 shadow-sm space-y-2.5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-sm shrink-0 border border-amber-500/40 shadow-sm">
+              <i class="fa-solid fa-server"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black uppercase text-slate-900 tracking-wider">IT Control &amp; Persona Switcher</span>
+                <span id="it-active-mode-badge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white shadow-2xs">Master Root Mode</span>
+              </div>
+              <p id="it-active-mode-desc" class="text-[11px] text-slate-600 font-medium mt-0.5">You have full control. Click any team member below to "Act As" them and test their exact pipeline, task assignments, and permissions.</p>
+            </div>
+          </div>
+
+          <!-- Exit Impersonation Button (Visible only when impersonating) -->
+          <div id="it-impersonation-actions" class="hidden flex items-center gap-2">
+            <button onclick="exitImpersonation()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-400/40 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-sm flex items-center gap-1.5">
+              <i class="fa-solid fa-crown text-amber-400"></i> Exit to IT Master
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Switcher Persona Pills -->
+        <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-200/80">
+          <span class="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider mr-1">Act As:</span>
+          
+          <button id="btn-persona-master" onclick="exitImpersonation()" class="px-2.5 py-1 rounded-xl text-xs font-black bg-slate-900 text-amber-400 border border-amber-400/50 shadow-xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-server text-xs"></i> 👑 IT Super Admin
+          </button>
+
+          <button id="btn-persona-priya" onclick="actAsUser('Priya')" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-white hover:bg-purple-50 text-purple-900 border border-purple-300 shadow-2xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-user-shield text-purple-600 text-xs"></i> 👩‍💼 Priya (Manager)
+          </button>
+
+          <button id="btn-persona-maya" onclick="actAsUser('Maya')" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-2xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-briefcase text-emerald-600 text-xs"></i> 💼 Maya (East Zone)
+          </button>
+
+          <button id="btn-persona-arjun" onclick="actAsUser('Arjun')" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-white hover:bg-blue-50 text-blue-900 border border-blue-300 shadow-2xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-briefcase text-blue-600 text-xs"></i> 💼 Arjun (North Zone)
+          </button>
+
+          <button id="btn-persona-test" onclick="actAsUser('Test')" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-user-check text-amber-600 text-xs"></i> 💼 Test (Sales)
+          </button>
+
+          <!-- Dynamic Enrolled Users Pill Container -->
+          <span id="dynamic-persona-pills" class="flex flex-wrap items-center gap-2"></span>
+        </div>
+      </div>
+      
+      <!-- TOP EXECUTIVE KPI CARDS -->
+      <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3.5">
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Total Leads</div>
+          <div id="kpi-total" class="text-2xl font-black text-slate-900 font-mono">0</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 border-l-4 border-l-blue-600 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-blue-700 uppercase tracking-wider">New</div>
+          <div id="kpi-new" class="text-2xl font-black text-blue-700 font-mono">0</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 border-l-4 border-l-amber-600 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider">Contacted</div>
+          <div id="kpi-contacted" class="text-2xl font-black text-amber-700 font-mono">0</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 border-l-4 border-l-purple-600 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-purple-700 uppercase tracking-wider">Site Visits</div>
+          <div id="kpi-site_visit" class="text-2xl font-black text-purple-700 font-mono">0</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 border-l-4 border-l-cyan-600 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-cyan-700 uppercase tracking-wider">Negotiation</div>
+          <div id="kpi-negotiation" class="text-2xl font-black text-cyan-700 font-mono">0</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 border-l-4 border-l-emerald-600 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-wider">Deals Won</div>
+          <div id="kpi-won" class="text-2xl font-black text-emerald-700 font-mono">0</div>
+        </div>
+        <div class="glass-card rounded-2xl p-3.5 space-y-1 border border-slate-200 border-l-4 border-l-rose-600 bg-white shadow-2xs">
+          <div class="text-[10px] font-extrabold text-rose-700 uppercase tracking-wider">Not Interested</div>
+          <div id="kpi-lost" class="text-2xl font-black text-rose-700 font-mono">0</div>
+        </div>
+      </section>
+
+      <!-- SCHEDULED CALLBACK REMINDERS NOTIFICATION BANNER -->
+      <div id="callback-reminders-banner" class="hidden glass-panel rounded-2xl p-4 border border-amber-400 bg-amber-50/95 flex flex-wrap items-center justify-between gap-3 shadow-md">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-base shadow-sm shrink-0 animate-bounce">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase text-amber-950 tracking-wider">Scheduled Callbacks Due</span>
+              <span id="callback-due-count" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-600 text-white font-mono">0 Due</span>
+            </div>
+            <p id="callback-due-summary" class="text-[11px] text-amber-900 font-bold mt-0.5">You have follow-up callbacks scheduled for today.</p>
+          </div>
+        </div>
+        <div id="callback-due-items" class="flex flex-wrap items-center gap-2">
+          <!-- Dynamic callback reminder chips -->
+        </div>
+      </div>
+
+      <!-- MANAGER & CEO DISPATCH BANNER (UNASSIGNED LEADS ALERT) -->
+      <div id="unassigned-dispatch-banner" class="hidden glass-panel rounded-2xl p-4 border border-amber-300 bg-amber-50/90 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-black text-base shadow-sm shrink-0">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase text-amber-950 tracking-wider">Manager Dispatch Queue</span>
+              <span id="unassigned-badge-count" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white font-mono">0</span>
+            </div>
+            <p class="text-[11px] text-amber-800 font-medium mt-0.5">New demo enquiries waiting for Priya (Manager) to distribute to Arjun, Maya, or Self-Assign.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="filterUnassignedOnly()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-filter"></i> View Unassigned
+          </button>
+          <button onclick="openBulkAssignModal()" class="px-3.5 py-2 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-users-gear"></i> Fast Dispatch
+          </button>
+        </div>
+      </div>
+
+      <section class="glass-panel rounded-2xl p-4 border border-indigo-200 bg-gradient-to-r from-indigo-50 via-white to-emerald-50 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <div><div class="text-xs font-black uppercase tracking-wider text-slate-900">Live Client Demo</div><p class="text-[11px] text-slate-600 font-medium">Capture a fictional buyer inquiry and show instant scoring, property matches, tasks, and follow-up history.</p></div>
+        </div>
+        <button onclick="openCreateLeadModal()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> Capture Demo Lead</button>
+      </section>
+
+      <!-- ======================================================= -->
+      <!-- VIEW A: PIPELINE WITH 4 PROMINENT SUB-LIST SECTIONS      -->
+      <!-- 1. Demo Portal | 2. Campaigns | 3. Other Leads | 4. All Combined -->
+      <!-- ======================================================= -->
+      <div id="sec-view-pipeline" class="space-y-4">
+        
+        <!-- 4 SUB-LIST NAVIGATION TABS (HIGH VISIBILITY) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <!-- Sub-list 1: Demo Portal Leads -->
+          <button id="tab-source-99acres" onclick="switchPipelineSection('99acres')" class="tab-section-active-99 p-3.5 rounded-2xl border transition text-left flex items-center justify-between shadow-sm relative group">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span class="text-xs font-black uppercase tracking-wider text-amber-900">1. Demo Portal Leads</span>
+              </div>
+              <p class="text-[10px] text-amber-700 font-medium">Simulated website enquiries</p>
+            </div>
+            <div class="text-right">
+              <span id="sec-count-99acres" class="text-2xl font-black text-amber-900 font-mono">0</span>
+              <div class="text-[9px] font-extrabold text-amber-800 uppercase">Leads</div>
+            </div>
+          </button>
+
+          <!-- Sub-list 2: Meta Leads -->
+          <button id="tab-source-meta" onclick="switchPipelineSection('meta')" class="bg-white hover:bg-blue-50/60 border border-slate-200 p-3.5 rounded-2xl transition text-left flex items-center justify-between shadow-sm group">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <i class="fa-brands fa-meta text-blue-600 text-sm"></i>
+                <span class="text-xs font-black uppercase tracking-wider text-slate-800 group-hover:text-blue-900 transition">2. Meta Leads</span>
+              </div>
+              <p class="text-[10px] text-slate-500">Facebook &amp; IG Ads</p>
+            </div>
+            <div class="text-right">
+              <span id="sec-count-meta" class="text-2xl font-black text-slate-700 group-hover:text-blue-900 font-mono transition">0</span>
+              <div class="text-[9px] font-extrabold text-slate-500 uppercase">Leads</div>
+            </div>
+          </button>
+
+          <!-- Sub-list 3: Other Leads (Broker, Referral, Walk-in, Website, Excel) -->
+          <button id="tab-source-other" onclick="switchPipelineSection('other')" class="bg-white hover:bg-purple-50/60 border border-slate-200 p-3.5 rounded-2xl transition text-left flex items-center justify-between shadow-sm group">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-purple-600 text-sm"></i>
+                <span class="text-xs font-black uppercase tracking-wider text-slate-800 group-hover:text-purple-900 transition">3. Other Leads</span>
+              </div>
+              <p class="text-[10px] text-slate-500">Broker &amp; Spreadsheet</p>
+            </div>
+            <div class="text-right">
+              <span id="sec-count-other" class="text-2xl font-black text-slate-700 group-hover:text-purple-900 font-mono transition">0</span>
+              <div class="text-[9px] font-extrabold text-slate-500 uppercase">Leads</div>
+            </div>
+          </button>
+
+          <!-- Sub-list 4: All Consolidated Leads -->
+          <button id="tab-source-all" onclick="switchPipelineSection('all')" class="bg-white hover:bg-slate-100 border border-slate-200 p-3.5 rounded-2xl transition text-left flex items-center justify-between shadow-sm group">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-slate-700 text-sm"></i>
+                <span class="text-xs font-black uppercase tracking-wider text-slate-800 group-hover:text-slate-900 transition">4. All Leads</span>
+              </div>
+              <p class="text-[10px] text-slate-500">Master Consolidated</p>
+            </div>
+            <div class="text-right">
+              <span id="sec-count-all" class="text-2xl font-black text-slate-800 font-mono transition">0</span>
+              <div class="text-[9px] font-extrabold text-slate-500 uppercase">Total</div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Sub-Source Filter Bar (Visible when in Section 3: Other Leads) -->
+        <div id="sub-source-bar" class="hidden glass-panel rounded-xl p-2.5 flex items-center gap-2 overflow-x-auto text-xs border border-purple-200 bg-purple-50/50">
+          <span class="text-[10px] font-black uppercase text-purple-900 px-2 flex items-center gap-1.5"><i class="fa-solid fa-filter text-purple-600"></i> Other Sub-Channels:</span>
+          <button id="sub-src-ALL" onclick="filterSubSource('ALL')" class="px-3 py-1 rounded-lg font-bold text-xs bg-purple-700 text-white shadow-sm">All Others</button>
+          <button id="sub-src-broker" onclick="filterSubSource('broker')" class="px-3 py-1 rounded-lg font-bold text-xs text-slate-700 hover:text-purple-900 bg-white border border-slate-200">Broker Network</button>
+          <button id="sub-src-referral" onclick="filterSubSource('referral')" class="px-3 py-1 rounded-lg font-bold text-xs text-slate-700 hover:text-purple-900 bg-white border border-slate-200">Client Referral</button>
+          <button id="sub-src-walkin" onclick="filterSubSource('walk-in')" class="px-3 py-1 rounded-lg font-bold text-xs text-slate-700 hover:text-purple-900 bg-white border border-slate-200">Site Walk-in</button>
+          <button id="sub-src-website" onclick="filterSubSource('website')" class="px-3 py-1 rounded-lg font-bold text-xs text-slate-700 hover:text-purple-900 bg-white border border-slate-200">Website</button>
+          <button id="sub-src-google" onclick="filterSubSource('google')" class="px-3 py-1 rounded-lg font-bold text-xs text-slate-700 hover:text-purple-900 bg-white border border-slate-200">Google Ads</button>
+          <button id="sub-src-direct" onclick="filterSubSource('direct')" class="px-3 py-1 rounded-lg font-bold text-xs text-slate-700 hover:text-purple-900 bg-white border border-slate-200">Direct / General</button>
+        </div>
+
+        <!-- Toolbar with Search, Location Zone Filter, Advisor Filter, Project Filter & Actions -->
+        <div class="glass-panel rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200">
+          <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+            <div class="relative flex-1 min-w-[160px]">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-xs"></i>
+              <input type="text" id="search-bar" oninput="applyFilters()" placeholder="Search buyer, phone, zone, micro-market, remark..." class="w-full bg-slate-50 border border-slate-300 rounded-xl py-1.5 pl-9 pr-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 font-medium">
+            </div>
+
+            <!-- Regional Location Filter Dropdown -->
+            <select id="location-filter" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 rounded-xl py-1.5 px-3 text-xs text-amber-900 focus:outline-none focus:border-amber-500 font-extrabold">
+              <option value="ALL">📍 All Locations &amp; Zones</option>
+            </select>
+
+            <!-- Advisor / Assignee Filter Dropdown -->
+            <select id="advisor-filter" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 rounded-xl py-1.5 px-3 text-xs text-cyan-900 focus:outline-none focus:border-cyan-500 font-extrabold">
+              <option value="ALL">👤 All Advisors &amp; Queue</option>
+              <option value="UNASSIGNED">⚡ Unassigned Leads</option>
+              <option value="Priya">👔 Priya (Manager)</option>
+              <option value="Maya">💼 Maya (Sales)</option>
+              <option value="Arjun">💼 Arjun (Sales)</option>
+            </select>
+
+            <!-- My Assigned Leads Fast Toggle -->
+            <button id="btn-my-leads-toggle" onclick="toggleMyLeadsFilter()" class="px-3 py-1.5 rounded-xl border border-slate-300 bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-900 text-xs font-bold transition flex items-center gap-1.5 shadow-2xs">
+              <i class="fa-solid fa-star text-amber-500"></i>
+              <span>My Leads</span>
+            </button>
+
+            <!-- Project Filter Dropdown -->
+            <select id="project-filter" onchange="applyFilters()" class="bg-slate-50 border border-slate-300 rounded-xl py-1.5 px-3 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-bold shadow-2xs">
+              <option value="ALL">All Properties &amp; Projects</option>
+            </select>
+
+            <!-- Builder / Developer Filter Dropdown -->
+            <select id="builder-filter" onchange="applyFilters()" class="bg-slate-50 border border-purple-300 rounded-xl py-1.5 px-3 text-xs text-purple-950 focus:outline-none focus:border-purple-600 font-extrabold shadow-2xs">
+              <option value="ALL">🏗️ All Builders / Developers</option>
+            </select>
+          </div>
+
+          <!-- Section Specific Action Buttons -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Export CSV Button -->
+            <button onclick="exportLeadsToCSV()" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-300 font-black text-xs uppercase tracking-wider rounded-xl shadow-2xs transition flex items-center gap-1.5" title="Export currently filtered pipeline to CSV spreadsheet">
+              <i class="fa-solid fa-file-arrow-down text-emerald-600 text-xs"></i> Export CSV
+            </button>
+
+            <!-- Upload Excel Button -->
+            <button onclick="openUploadExcelModal()" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 font-black text-xs uppercase tracking-wider rounded-xl shadow-sm transition flex items-center gap-1.5">
+              <i class="fa-solid fa-file-excel text-emerald-600"></i> Upload Excel
+            </button>
+          </div>
+        </div>
+
+        <!-- 6-Column Kanban Board (High Visibility Daylight Styling) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <!-- Col 1: NEW -->
+          <div class="glass-panel rounded-2xl p-3 flex flex-col space-y-3 border-t-4 border-t-blue-600 min-h-[550px] bg-slate-50/70">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                <span class="font-black text-xs uppercase text-slate-800">New Inquiries</span>
+              </div>
+              <span id="count-NEW" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-800 border border-blue-200 font-mono">0</span>
+            </div>
+            <div id="col-NEW" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          </div>
+
+          <!-- Col 2: CONTACTED -->
+          <div class="glass-panel rounded-2xl p-3 flex flex-col space-y-3 border-t-4 border-t-amber-500 min-h-[550px] bg-slate-50/70">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                <span class="font-black text-xs uppercase text-slate-800">Contacted</span>
+              </div>
+              <span id="count-CONTACTED" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200 font-mono">0</span>
+            </div>
+            <div id="col-CONTACTED" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          </div>
+
+          <!-- Col 3: SITE VISIT -->
+          <div class="glass-panel rounded-2xl p-3 flex flex-col space-y-3 border-t-4 border-t-purple-600 min-h-[550px] bg-slate-50/70">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
+                <span class="font-black text-xs uppercase text-slate-800">Site Visit</span>
+              </div>
+              <span id="count-SITE_VISIT" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800 border border-purple-200 font-mono">0</span>
+            </div>
+            <div id="col-SITE_VISIT" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          </div>
+
+          <!-- Col 4: NEGOTIATION -->
+          <div class="glass-panel rounded-2xl p-3 flex flex-col space-y-3 border-t-4 border-t-cyan-600 min-h-[550px] bg-slate-50/70">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-600"></span>
+                <span class="font-black text-xs uppercase text-slate-800">Negotiation</span>
+              </div>
+              <span id="count-NEGOTIATION" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-cyan-100 text-cyan-800 border border-cyan-200 font-mono">0</span>
+            </div>
+            <div id="col-NEGOTIATION" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          </div>
+
+          <!-- Col 5: WON -->
+          <div class="glass-panel rounded-2xl p-3 flex flex-col space-y-3 border-t-4 border-t-emerald-600 min-h-[550px] bg-slate-50/70">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                <span class="font-black text-xs uppercase text-slate-800">Deals Won</span>
+              </div>
+              <span id="count-WON" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 font-mono">0</span>
+            </div>
+            <div id="col-WON" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          </div>
+
+          <!-- Col 6: LOST / NOT INTERESTED -->
+          <div class="glass-panel rounded-2xl p-3 flex flex-col space-y-3 border-t-4 border-t-rose-600 min-h-[550px] bg-slate-50/70">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+                <span class="font-black text-xs uppercase text-slate-800">Not Interested</span>
+              </div>
+              <span id="count-LOST" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-200 font-mono">0</span>
+            </div>
+            <div id="col-LOST" class="space-y-2.5 overflow-y-auto flex-1 pr-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW B: MASTER DIRECTORY (WHITE TABLE)     -->
+      <!-- ========================================== -->
+      <div id="sec-view-directory" class="hidden space-y-4">
+        
+        <!-- Quick Sub-List Filter for Directory Table -->
+        <div class="flex flex-wrap items-center justify-between gap-3 glass-panel rounded-2xl p-3 bg-white border border-slate-200">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-slate-700 uppercase tracking-wider">Directory Sub-List:</span>
+            <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 text-xs font-bold">
+              <button onclick="switchPipelineSection('all')" id="tbl-tab-all" class="px-3 py-1 rounded-lg text-slate-700 hover:text-slate-900 transition">All Leads</button>
+              <button onclick="switchPipelineSection('99acres')" id="tbl-tab-99acres" class="px-3 py-1 rounded-lg text-slate-700 hover:text-amber-900 transition">99acres</button>
+              <button onclick="switchPipelineSection('meta')" id="tbl-tab-meta" class="px-3 py-1 rounded-lg text-slate-700 hover:text-blue-900 transition">Meta Ads</button>
+              <button onclick="switchPipelineSection('other')" id="tbl-tab-other" class="px-3 py-1 rounded-lg text-slate-700 hover:text-purple-900 transition">Other Leads</button>
+            </div>
+          <button onclick="exportLeadsToCSV()" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-300 font-black text-xs uppercase tracking-wider rounded-xl shadow-2xs transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-arrow-down text-emerald-600"></i> Export CSV
+          </button>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 overflow-x-auto border border-slate-200 bg-white">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 font-black text-[10px] uppercase tracking-wider bg-slate-50">
+                <th class="p-3.5">Buyer &amp; Inquired Property</th>
+                <th class="p-3.5">Location / Zone</th>
+                <th class="p-3.5">Lead Source</th>
+                <th class="p-3.5">Latest Remark / Call Notes</th>
+                <th class="p-3.5">Next Scheduled Call</th>
+                <th class="p-3.5">Assigned Advisor</th>
+                <th class="p-3.5">Stage</th>
+                <th class="p-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-leads-rows" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW C: EXECUTIVE ANALYTICS                -->
+      <!-- ========================================== -->
+      <div id="sec-view-analytics" class="hidden space-y-6">
+        <!-- Top Funnel Performance Bar -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-panel rounded-2xl p-4 space-y-1.5 border border-slate-200 bg-white">
+            <div class="text-xs font-bold text-slate-500">Lead Contact Rate</div>
+            <div id="an-contact-rate" class="text-2xl font-black text-amber-700 font-mono">--</div>
+            <div class="text-[10px] text-slate-500">Inquiries reached by advisors</div>
+          </div>
+          <div class="glass-panel rounded-2xl p-4 space-y-1.5 border border-slate-200 bg-white">
+            <div class="text-xs font-bold text-slate-500">Site Visit Booking Rate</div>
+            <div id="an-visit-rate" class="text-2xl font-black text-purple-700 font-mono">--</div>
+            <div class="text-[10px] text-slate-500">Inquiries converted to site visits</div>
+          </div>
+          <div class="glass-panel rounded-2xl p-4 space-y-1.5 border border-slate-200 bg-white">
+            <div class="text-xs font-bold text-slate-500">Deal Conversion Rate</div>
+            <div id="an-win-rate" class="text-2xl font-black text-emerald-700 font-mono">--</div>
+            <div class="text-[10px] text-slate-500">Deals won vs total inquiries</div>
+          </div>
+          <div class="glass-panel rounded-2xl p-4 space-y-1.5 border border-slate-200 bg-white">
+            <div class="text-xs font-bold text-slate-500">Active Advisors</div>
+            <div id="an-team-count" class="text-2xl font-black text-cyan-700 font-mono">--</div>
+            <div class="text-[10px] text-slate-500">Enrolled team members</div>
+          </div>
+        </div>
+
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-1 rounded-2xl p-5 bg-gradient-to-br from-indigo-600 to-violet-700 text-white shadow-lg">
+            <div class="text-[10px] font-black uppercase tracking-[0.16em] text-indigo-100">Best-performing property</div>
+            <div id="an-top-property" class="mt-2 text-xl font-black">—</div>
+            <div id="an-top-property-detail" class="mt-1 text-xs text-indigo-100 font-medium">Loading portfolio performance…</div>
+            <div class="mt-4 inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-white/15 text-[10px] font-bold"><i class="fa-solid fa-chart-line"></i> Live portfolio intelligence</div>
+          </div>
+          <div class="lg:col-span-2 glass-panel rounded-2xl p-5 border border-slate-200 bg-white">
+            <div class="flex items-center justify-between gap-3 mb-3"><div><h3 class="font-black text-sm text-slate-900">Property demand &amp; conversion</h3><p class="text-[11px] text-slate-500">Compare enquiry volume, active demand, site visits, and booked deals.</p></div><span id="an-unassigned-count" class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-800 border border-amber-200">0 unassigned</span></div>
+            <div id="an-property-performance" class="space-y-2"></div>
+          </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- TEAM STATUS & REGIONAL TERRITORY WORKLOAD (PRIYA, ARJUN, MAYA) -->
+        <!-- ============================================================ -->
+        <div class="space-y-3.5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                <i class="fa-solid fa-users-gear"></i>
+              </div>
+              <div>
+                <h3 class="font-black text-sm text-slate-900 uppercase tracking-wide">Team Status &amp; Regional Workload Distribution</h3>
+                <p class="text-[11px] text-slate-500 font-medium">Live assigned leads and micro-market workload (East, North, South, West) for Priya, Arjun, and Maya</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-2xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live Tracking
+              </span>
+            </div>
+          </div>
+
+          <!-- 3 Team Member Workload Cards Grid -->
+          <div id="analytics-team-workload-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Rendered dynamically by renderAnalytics() in app.js -->
+          </div>
+        </div>
+
+        <!-- Analytics Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="glass-panel rounded-2xl p-5 border border-slate-200 bg-white space-y-4">
+            <div class="font-black text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-filter text-amber-600"></i> Lead Conversion Funnel
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chart-funnel"></canvas>
+            </div>
+          </div>
+
+          <div class="glass-panel rounded-2xl p-5 border border-slate-200 bg-white space-y-4">
+            <div class="font-black text-sm text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-amber-600"></i> Inbound Channel Distribution
+            </div>
+            <div class="h-64 relative">
+              <canvas id="chart-sources"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VIEW D: SUPER ADMIN TEAM & RBAC CONTROL    -->
+      <!-- ========================================== -->
+      <div id="sec-view-team" class="hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 glass-panel rounded-2xl p-4 border border-slate-200 bg-white">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <h2 class="font-black text-sm text-slate-900 uppercase">Super Admin Authority &amp; Team Enrollment</h2>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5 font-medium">Control roles (Super Admin, Director, Advisor, Agent), reset credentials, and assign project territories.</p>
+          </div>
+          <button onclick="openEnrollUserModal()" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-user-plus"></i> Enroll Team Member
+          </button>
+        </div>
+
+        <!-- Enrolled Users Grid -->
+        <div id="team-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. INTERACTION & REMARK DOSSIER MODAL      -->
+  <!-- ========================================== -->
+  <div id="modal-lead" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-3xl w-full bg-white rounded-3xl p-6 shadow-2xl space-y-5 border border-slate-200 max-h-[92vh] overflow-y-auto">
+      
+      <!-- Lead Header with Big Source Tag -->
+      <div class="flex items-start justify-between border-b border-slate-200 pb-4">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h3 id="md-name" class="text-lg font-black text-slate-900">Buyer Name</h3>
+            <span id="md-source" class="px-3 py-1 rounded-full text-xs font-black uppercase bg-amber-100 text-amber-900 border border-amber-300">SOURCE: 99ACRES</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-slate-600 mt-1.5 font-mono font-medium">
+            <span id="md-phone"><i class="fa-solid fa-phone mr-1 text-slate-400"></i>+91-XXXX</span>
+            <span id="md-email"><i class="fa-solid fa-envelope mr-1 text-slate-400"></i>email@domain.com</span>
+          </div>
+        </div>
+        <button onclick="closeLeadModal()" class="p-2 text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <!-- Follow-up Alert Banner (When scheduled callback exists) -->
+      <div id="md-followup-banner" class="hidden p-3 rounded-2xl bg-amber-50 border border-amber-300 flex items-center justify-between gap-3 shadow-sm">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm shrink-0">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div>
+            <div class="text-[10px] font-black uppercase tracking-wider text-amber-900">Scheduled Follow-up Callback</div>
+            <div id="md-followup-details" class="text-xs font-bold text-slate-800">Call scheduled for Tomorrow 4:00 PM</div>
+          </div>
+        </div>
+        <button onclick="markFollowupDone()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black transition flex items-center gap-1.5 shrink-0 shadow-sm">
+          <i class="fa-solid fa-check"></i> Mark Called
+        </button>
+      </div>
+
+      <!-- Property, Location & Advisor Info -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Inquired Property</div>
+          <div id="md-property" class="text-xs font-extrabold text-slate-900">Skyline Residences</div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1">
+          <div class="text-[10px] font-bold text-amber-800 uppercase flex items-center gap-1"><i class="fa-solid fa-location-dot text-amber-600"></i> Zone &amp; Micro-Market</div>
+          <div id="md-location" class="text-xs font-extrabold text-amber-950">East Bangalore • Whitefield</div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Assigned Advisor</div>
+          <div id="md-assigned" class="text-xs font-extrabold text-cyan-800">Unassigned</div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-1 col-span-2 sm:col-span-1">
+          <div class="text-[10px] font-bold text-slate-500 uppercase">Pipeline Stage</div>
+          <select id="md-stage-select" onchange="updateLeadStage()" class="w-full bg-white border border-slate-300 rounded-xl py-1 px-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+            <option value="new">1. New Inquiry</option>
+            <option value="contacted">2. Contacted</option>
+            <option value="site_visit">3. Site Visit Scheduled</option>
+            <option value="negotiation">4. In Negotiation</option>
+            <option value="won">5. Booked / Won Deal</option>
+            <option value="lost">6. Closed / Lost</option>
+          </select>
+        </div>
+      </div>
+
+      <section id="md-demo-insights" class="p-4 rounded-2xl bg-gradient-to-r from-indigo-50 to-emerald-50 border border-indigo-200">
+        <div class="flex flex-wrap items-center justify-between gap-3"><div><div class="text-[10px] font-black uppercase tracking-wider text-indigo-900">Buyer intelligence</div><div id="md-next-action" class="text-xs font-bold text-slate-800 mt-1"></div></div><div class="px-3 py-2 rounded-xl bg-white border border-indigo-200 text-center"><div class="text-[9px] uppercase font-black text-slate-500">Lead score</div><div id="md-lead-score" class="text-lg font-black text-indigo-700">—</div></div></div>
+        <div id="md-property-matches" class="flex flex-wrap gap-2 mt-3"></div>
+      </section>
+
+      <!-- 4 CALL OUTCOME CATEGORIES & RNR 3-STRIKE BAR -->
+      <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-phone-volume text-blue-600 text-xs"></i>
+            <span class="text-xs font-black uppercase text-slate-800 tracking-wider">Call Outcome &amp; Auto-Status:</span>
+          </div>
+          <div id="md-rnr-strike-status" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-slate-200 text-slate-800 border border-slate-300">
+            0/3 Strikes
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <!-- 1. RNR 1-3 -->
+          <button type="button" onclick="quickLogLeadOutcome('rnr')" class="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 text-xs font-black transition flex flex-col items-center justify-center gap-0.5 shadow-2xs group">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-phone-slash text-amber-600 text-[11px]"></i> RNR (No Answer)</span>
+            <span class="text-[9px] font-bold text-amber-700">+1 Strike (Auto 3x Drop)</span>
+          </button>
+
+          <!-- 2. Call Back -->
+          <button type="button" onclick="openLogCallModalWithCategory('callback')" class="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-950 border border-blue-300 text-xs font-black transition flex flex-col items-center justify-center gap-0.5 shadow-2xs group">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-clock text-blue-600 text-[11px]"></i> Schedule Callback</span>
+            <span class="text-[9px] font-bold text-blue-700">Date &amp; Reminder</span>
+          </button>
+
+          <!-- 3. Prospect -->
+          <button type="button" onclick="quickLogLeadOutcome('prospect')" class="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-300 text-xs font-black transition flex flex-col items-center justify-center gap-0.5 shadow-2xs group">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-star text-emerald-600 text-[11px]"></i> Prospect (Interested)</span>
+            <span class="text-[9px] font-bold text-emerald-700">Reset Strike to 0</span>
+          </button>
+
+          <!-- 4. Not Interested -->
+          <button type="button" onclick="quickLogLeadOutcome('not_interested')" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-950 border border-rose-300 text-xs font-black transition flex flex-col items-center justify-center gap-0.5 shadow-2xs group">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-ban text-rose-600 text-[11px]"></i> Not Interested</span>
+            <span class="text-[9px] font-bold text-rose-700">Move to Lost</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="p-3 bg-slate-100 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+        <span class="text-xs font-bold text-slate-700">Quick Actions:</span>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openLogCallModal()" class="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-phone text-blue-600"></i> Full Call Log
+          </button>
+          <button onclick="triggerWhatsAppOutreach()" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp
+          </button>
+          <button onclick="openSiteVisitModal()" class="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-calendar-check text-purple-600"></i> Site Visit
+          </button>
+          <button onclick="openAssignModal()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-black transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-user-tag"></i> Assign Task
+          </button>
+          <button id="btn-delete-lead-dossier" onclick="deleteCurrentLead()" class="hidden px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-300 text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-trash text-rose-600"></i> Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Assigned Task & Manager Instructions Box -->
+      <div id="md-task-box" class="hidden p-3.5 rounded-2xl bg-purple-50 border border-purple-200 flex items-start justify-between gap-3 shadow-2xs">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-purple-600 text-white font-mono" id="md-task-priority">HIGH PRIORITY</span>
+            <span class="text-xs font-black text-purple-950 uppercase" id="md-task-title">Task: Immediate First Contact Call</span>
+          </div>
+          <div class="text-[11px] text-purple-900 font-medium leading-relaxed" id="md-task-instructions">No special instructions</div>
+          <div class="text-[10px] text-purple-700 font-bold" id="md-task-due">Due: Today</div>
+        </div>
+        <button onclick="openAssignModal()" class="px-3 py-1.5 bg-white hover:bg-purple-100 text-purple-900 border border-purple-300 rounded-xl text-xs font-bold transition shadow-2xs shrink-0">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> Reassign
+        </button>
+      </div>
+
+      <!-- Remark & Next Callback Input Form -->
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-amber-600 text-xs"></i>
+            <span class="text-xs font-black text-slate-800 uppercase">Add Remark &amp; Next Callback Time</span>
+          </div>
+          <span class="text-[10px] text-slate-500 font-semibold">Saves to Firestore History</span>
+        </div>
+
+        <form id="form-add-remark" onsubmit="handleSaveRemark(event)" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <select id="remark-category" class="bg-white border border-slate-300 rounded-xl py-2 px-3 text-xs text-slate-900 font-bold">
+              <option value="Customer Callback Requested">📞 Customer Asked for Callback</option>
+              <option value="Price / Budget Discussion">💰 Price / Budget Discussion</option>
+              <option value="Floor Plan / Brochure Sent">📄 Brochure / Floor Plan Sent</option>
+              <option value="Site Visit Discussion">🏢 Site Visit Discussion</option>
+              <option value="Client Feedback">💬 Client Feedback / Requirements</option>
+              <option value="General Remark">📝 General Note</option>
+            </select>
+            <input type="date" id="remark-next-date" class="bg-white border border-slate-300 rounded-xl py-2 px-3 text-xs text-slate-900 font-semibold" title="Next Callback Date">
+            <input type="time" id="remark-next-time" class="bg-white border border-slate-300 rounded-xl py-2 px-3 text-xs text-slate-900 font-semibold" title="Next Callback Time">
+          </div>
+
+          <div class="relative">
+            <textarea id="remark-text" rows="2" required placeholder="Write remark (e.g. 'Customer is travelling this week, asked to call on Saturday 11 AM regarding Sobha 3BHK pricing')..." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 font-medium"></textarea>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-600">
+              <span class="font-bold">Presets:</span>
+              <button type="button" onclick="setPresetFollowup(0, '18:00')" class="px-2 py-0.5 rounded-lg bg-white hover:bg-slate-100 text-[10px] text-amber-800 font-bold border border-slate-200">Today 6 PM</button>
+              <button type="button" onclick="setPresetFollowup(1, '11:00')" class="px-2 py-0.5 rounded-lg bg-white hover:bg-slate-100 text-[10px] text-amber-800 font-bold border border-slate-200">Tomorrow 11 AM</button>
+              <button type="button" onclick="setPresetFollowup(2, '16:00')" class="px-2 py-0.5 rounded-lg bg-white hover:bg-slate-100 text-[10px] text-amber-800 font-bold border border-slate-200">In 2 Days 4 PM</button>
+            </div>
+            <button type="submit" class="py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-sm flex items-center gap-1.5">
+              <i class="fa-solid fa-floppy-disk"></i> Save Remark &amp; Schedule
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Real-Time Remark & Activity History in Firestore -->
+      <div class="space-y-3 pt-2 border-t border-slate-200">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-amber-600 text-xs"></i>
+            <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Remark &amp; Interaction History</span>
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono">Cloud Firestore Subcollection</span>
+        </div>
+        
+        <!-- Timeline List Container -->
+        <div id="md-activity-timeline" class="space-y-2.5 max-h-60 overflow-y-auto pr-1 text-xs"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 4. UPLOAD EXCEL / CSV LEADS MODAL                       -->
+  <!-- ======================================================= -->
+  <div id="modal-upload-excel" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-xl w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-file-excel text-emerald-600 text-base"></i>
+          <h3 class="font-black text-sm text-slate-900 uppercase">Upload Leads Spreadsheet (.xlsx / .csv)</h3>
+        </div>
+        <button onclick="closeUploadExcelModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <div class="space-y-3.5">
+        <!-- 1. Source Selector (Where should these leads go?) -->
+        <div class="space-y-1">
+          <label class="text-[11px] font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-bullseye text-amber-600"></i> Designate Target Lead Section:
+          </label>
+          <select id="excel-import-source" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+            <option value="website">🏢 Section 1: Demo Portal Leads</option>
+            <option value="meta">🔵 Section 2: Meta / Facebook Ads Leads</option>
+            <option value="broker" selected>🟣 Section 3: Broker Network</option>
+            <option value="referral">🟣 Section 3: Client Referral</option>
+            <option value="walk-in">🟣 Section 3: Site Walk-in</option>
+            <option value="website">🟣 Section 3: Website Forms</option>
+            <option value="google">🟣 Section 3: Google Ads Campaign</option>
+            <option value="other">🟣 Section 3: General / Direct Inquiries</option>
+          </select>
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Default Project (Optional Override):</label>
+          <input type="text" id="excel-default-project" placeholder="e.g. Sobha Windsor / General Portfolio" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium">
+        </div>
+
+        <!-- 2. File Drag & Drop Box -->
+        <div class="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-6 text-center transition cursor-pointer bg-slate-50" onclick="document.getElementById('excel-file-input').click()">
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelFileSelected(event)">
+          <i class="fa-solid fa-cloud-arrow-up text-3xl text-amber-600 mb-2"></i>
+          <p id="excel-file-label" class="text-xs font-bold text-slate-700">Click to browse or drop .xlsx / .csv spreadsheet</p>
+          <p class="text-[10px] text-slate-500 mt-1">Automatic columns detected: Name, Phone, Project, City, Notes, Budget</p>
+        </div>
+
+        <!-- 3. Preview Container -->
+        <div id="excel-preview-container" class="hidden space-y-2 border border-slate-200 rounded-2xl p-3 bg-slate-50">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+            <span>Detected Leads Preview:</span>
+            <span id="excel-preview-count" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-mono text-[10px] font-black">0</span>
+          </div>
+          <div class="max-h-36 overflow-y-auto">
+            <table class="w-full text-left text-[11px]">
+              <thead>
+                <tr class="text-slate-500 border-b border-slate-200 text-[9px] uppercase font-black">
+                  <th class="p-1.5">Name</th>
+                  <th class="p-1.5">Phone</th>
+                  <th class="p-1.5">Project</th>
+                  <th class="p-1.5">Notes</th>
+                </tr>
+              </thead>
+              <tbody id="excel-preview-tbody" class="divide-y divide-slate-200 font-medium"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. Submit Ingestion Button -->
+        <button id="btn-submit-excel-import" disabled onclick="executeExcelImport()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 disabled:opacity-40 disabled:pointer-events-none text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-database"></i> <span id="btn-excel-text">Select a Spreadsheet to Import</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 5. CREATE MANUAL LEAD MODAL                -->
+  <!-- ========================================== -->
+  <div id="modal-create-lead" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-amber-600 text-base"></i>
+          <h3 class="font-black text-sm text-slate-900 uppercase">Live Demo Lead Capture</h3>
+        </div>
+        <button onclick="closeCreateLeadModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <form id="form-create-lead" onsubmit="handleCreateLead(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Customer Full Name</label>
+          <input type="text" id="cr-name" required placeholder="e.g. Jordan Taylor" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Contact Phone Number</label>
+          <input type="tel" id="cr-phone" required placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-mono font-medium focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Email Address (Optional)</label>
+          <input type="email" id="cr-email" placeholder="customer@gmail.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Inquired Property / Project</label>
+          <input type="text" id="cr-project" placeholder="e.g. Skyline Residences" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Lead Source</label>
+            <select id="cr-source" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+              <option value="website" selected>Website Demo</option>
+              <option value="referral">Referral</option>
+              <option value="meta">Campaign</option>
+              <option value="broker">Broker</option>
+              <option value="referral">Referral</option>
+              <option value="walk-in">Walk-in</option>
+              <option value="website">Website</option>
+              <option value="google">Google</option>
+              <option value="direct" selected>Direct</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">City / Region</label>
+            <input type="text" id="cr-city" placeholder="Bangalore East" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-[11px] font-bold text-slate-700 mb-1">Budget Range</label><input type="text" id="cr-budget" placeholder="e.g. 80L – 1.2Cr" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500"></div>
+          <div><label class="block text-[11px] font-bold text-slate-700 mb-1">Purchase Timeline</label><select id="cr-timeline" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500"><option>0–30 days</option><option selected>30–90 days</option><option>3–6 months</option></select></div>
+        </div>
+        <div><label class="block text-[11px] font-bold text-slate-700 mb-1">Buyer Intent</label><select id="cr-intent" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500"><option>Purchase</option><option>Investment</option><option>Explore options</option></select></div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Initial Inquiry Notes</label>
+          <textarea id="cr-notes" rows="2" placeholder="Requirements (e.g. 3BHK East facing, budget ₹2.5 Cr)..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md mt-2">
+          <i class="fa-solid fa-bolt mr-1.5"></i> Create Lead &amp; Open Dossier
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 6. LOG CALL INTERACTION MODAL (4 CATEGORIES) -->
+  <!-- ========================================== -->
+  <div id="modal-log-call" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-phone text-blue-600 text-base"></i>
+          <div>
+            <h3 class="font-black text-sm text-slate-900 uppercase">Log Call &amp; Update Status</h3>
+            <p class="text-[10px] text-slate-500 font-medium">Select 1 of 4 outcome categories with automatic 3x RNR rule</p>
+          </div>
+        </div>
+        <button onclick="closeLogCallModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <form id="form-log-call" onsubmit="handleSaveCall(event)" class="space-y-4">
+        
+        <!-- 4 Call Outcome Interactive Cards -->
+        <div class="space-y-1.5">
+          <label class="block text-[11px] font-extrabold uppercase text-slate-800 tracking-wider">
+            1. Select Call Outcome Category:
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            
+            <!-- Category 1: RNR (Ringing No Response) -->
+            <div id="card-outcome-rnr" onclick="selectCallOutcomeCard('rnr')" class="p-3 rounded-2xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100/60 cursor-pointer transition space-y-1 group relative">
+              <div class="flex items-center justify-between">
+                <span class="w-6 h-6 rounded-lg bg-amber-500 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+                  <i class="fa-solid fa-phone-slash text-[10px]"></i>
+                </span>
+                <span id="badge-rnr-strike-preview" class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 border border-amber-300">RNR (+1)</span>
+              </div>
+              <div class="font-black text-xs text-amber-950">1. RNR (Ringing / Busy)</div>
+              <p class="text-[10px] text-amber-800 leading-tight">3 Strikes Rule: 3rd RNR automatically moves lead to Not Interested.</p>
+            </div>
+
+            <!-- Category 2: Call Back -->
+            <div id="card-outcome-callback" onclick="selectCallOutcomeCard('callback')" class="p-3 rounded-2xl border-2 border-slate-200 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/50 cursor-pointer transition space-y-1 group">
+              <div class="flex items-center justify-between">
+                <span class="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 font-black text-xs flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition shadow-2xs">
+                  <i class="fa-solid fa-clock text-[10px]"></i>
+                </span>
+                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">Reminder</span>
+              </div>
+              <div class="font-black text-xs text-slate-900">2. Call Back Requested</div>
+              <p class="text-[10px] text-slate-500 leading-tight">Schedule follow-up date &amp; time with active reminder notifications.</p>
+            </div>
+
+            <!-- Category 3: Prospect -->
+            <div id="card-outcome-prospect" onclick="selectCallOutcomeCard('prospect')" class="p-3 rounded-2xl border-2 border-slate-200 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/50 cursor-pointer transition space-y-1 group">
+              <div class="flex items-center justify-between">
+                <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 font-black text-xs flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition shadow-2xs">
+                  <i class="fa-solid fa-star text-[10px]"></i>
+                </span>
+                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Interested</span>
+              </div>
+              <div class="font-black text-xs text-slate-900">3. Prospect (Interested)</div>
+              <p class="text-[10px] text-slate-500 leading-tight">Customer interested, requested brochure, site visit, or consultation.</p>
+            </div>
+
+            <!-- Category 4: Not Interested -->
+            <div id="card-outcome-lost" onclick="selectCallOutcomeCard('not_interested')" class="p-3 rounded-2xl border-2 border-slate-200 hover:border-rose-500 bg-slate-50 hover:bg-rose-50/50 cursor-pointer transition space-y-1 group">
+              <div class="flex items-center justify-between">
+                <span class="w-6 h-6 rounded-lg bg-rose-100 text-rose-700 font-black text-xs flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition shadow-2xs">
+                  <i class="fa-solid fa-ban text-[10px]"></i>
+                </span>
+                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">Lost</span>
+              </div>
+              <div class="font-black text-xs text-slate-900">4. Not Interested / Lost</div>
+              <p class="text-[10px] text-slate-500 leading-tight">Budget mismatch, invalid inquiry, or no immediate requirement.</p>
+            </div>
+
+          </div>
+
+          <!-- Hidden Outcome Value -->
+          <input type="hidden" id="call-outcome" value="RNR">
+        </div>
+
+        <!-- Dynamic Callback Date/Time Box (Visible when Callback is selected) -->
+        <div id="callback-schedule-box" class="space-y-2 p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-extrabold uppercase text-blue-950 tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-calendar-check text-blue-600"></i> Scheduled Callback Date &amp; Time:
+            </label>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="setPresetCallback(0, '16:00')" class="px-2 py-0.5 rounded-md bg-white border border-blue-300 text-[9px] font-bold text-blue-900 hover:bg-blue-100">Today 4 PM</button>
+              <button type="button" onclick="setPresetCallback(1, '11:00')" class="px-2 py-0.5 rounded-md bg-white border border-blue-300 text-[9px] font-bold text-blue-900 hover:bg-blue-100">Tomorrow 11 AM</button>
+              <button type="button" onclick="setPresetCallback(2, '11:00')" class="px-2 py-0.5 rounded-md bg-white border border-blue-300 text-[9px] font-bold text-blue-900 hover:bg-blue-100">+2 Days</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Callback Date</label>
+              <input type="date" id="call-next-date" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Callback Time</label>
+              <input type="time" id="call-next-time" value="11:00" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Call Feedback &amp; Discussion Remarks</label>
+          <textarea id="call-notes" rows="2" placeholder="Summary of discussion, client requirement, unit preference..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500"></textarea>
+        </div>
+
+        <button type="submit" id="btn-save-call" class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md flex items-center justify-center gap-2">
+          <i class="fa-solid fa-check"></i> <span id="btn-save-call-label">Save Call Outcome &amp; Update Status</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 6B. RNR CONFIRMATION MODAL (ACCIDENTAL CLICK SAFETY)    -->
+  <!-- ======================================================= -->
+  <div id="modal-confirm-rnr" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-start justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-black text-sm shadow-2xs">
+            <i class="fa-solid fa-phone-slash"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-sm text-slate-900 uppercase">Confirm Unanswered Call (RNR)</h3>
+            <p class="text-[10px] text-amber-700 font-bold">Strike &amp; Status Verification</p>
+          </div>
+        </div>
+        <button onclick="closeConfirmRnrModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <!-- Lead Details Preview -->
+      <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-bold">Customer:</span>
+          <span id="rnr-confirm-lead-name" class="font-black text-slate-900">Buyer</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-bold">Phone Number:</span>
+          <span id="rnr-confirm-lead-phone" class="font-mono font-bold text-amber-900">+91-XXXXXXXXXX</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-bold">Property:</span>
+          <span id="rnr-confirm-lead-property" class="font-bold text-slate-800">Horizon Asset</span>
+        </div>
+      </div>
+
+      <!-- Strike Progress Warning Card -->
+      <div id="rnr-confirm-warning-box" class="p-4 rounded-2xl bg-amber-50 border border-amber-300 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-amber-950 uppercase flex items-center gap-1.5">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> <span id="rnr-confirm-strike-title">Strike Level: Attempt 1 of 3</span>
+          </span>
+          <span id="rnr-confirm-strike-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-200 text-amber-950 border border-amber-300">
+            RNR 1
+          </span>
+        </div>
+        <p id="rnr-confirm-strike-desc" class="text-[11px] text-amber-900 font-medium leading-relaxed">
+          Are you sure you called this client and received <strong>No Response / Phone Ringing</strong>?
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-2.5 pt-1">
+        <button type="button" onclick="closeConfirmRnrModal()" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs uppercase tracking-wider rounded-xl transition shadow-2xs text-center">
+          <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Cancel / Did Not Call
+        </button>
+        <button type="button" id="btn-execute-confirm-rnr" onclick="executeConfirmedRnr()" class="py-2.5 px-4 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md text-center flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-check"></i> <span id="btn-execute-rnr-label">Yes, Log RNR</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 7. SCHEDULE SITE VISIT MODAL               -->
+  <!-- ========================================== -->
+  <div id="modal-site-visit" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-building text-purple-600 text-base"></i>
+          <h3 class="font-black text-sm text-slate-900 uppercase">Book Property Site Visit</h3>
+        </div>
+        <button onclick="closeSiteVisitModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <form id="form-site-visit" onsubmit="handleSaveSiteVisit(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Project Site Location</label>
+          <input type="text" id="sv-property" required placeholder="e.g. Sobha Windsor Site Office" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Visit Date</label>
+            <input type="date" id="sv-date" required class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-semibold focus:outline-none focus:border-amber-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Visit Time</label>
+            <input type="time" id="sv-time" required value="11:00" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-semibold focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Special Instructions / Family Members</label>
+          <textarea id="sv-notes" rows="2" placeholder="e.g. Client coming with spouse and cheque book..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-sm mt-2">
+          <i class="fa-solid fa-calendar-check mr-1.5"></i> Confirm Site Visit &amp; Update Stage
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 8. SMART LEAD & TASK ASSIGNMENT MODAL (PRIYA & ADMIN)    -->
+  <!-- ======================================================= -->
+  <div id="modal-assign" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200 max-h-[92vh] overflow-y-auto">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-user-tag text-purple-600"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-sm text-slate-900 uppercase">Dispatch Lead &amp; Assign Task</h3>
+            <p class="text-[10px] text-slate-500 font-medium">Assign lead to Arjun, Maya, or Priya (Self-Assign) with custom instructions</p>
+          </div>
+        </div>
+        <button onclick="closeAssignModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <form id="form-assign" onsubmit="handleSaveAssign(event)" class="space-y-4">
+        
+        <!-- 1. 1-Click Interactive Assignee Selection Cards -->
+        <div class="space-y-1.5">
+          <label class="block text-[11px] font-extrabold uppercase text-slate-800 tracking-wider">
+            1. Select Assignee:
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <!-- Card 1: Arjun -->
+            <div id="card-assign-arjun" onclick="selectAssigneeCard('Arjun (Sales Executive)', 'arjun@estate.com', 'arjun')" class="p-2.5 rounded-2xl border-2 border-slate-200 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/50 cursor-pointer transition text-center space-y-1 group">
+              <div class="w-9 h-9 mx-auto rounded-xl bg-blue-100 text-blue-800 font-black flex items-center justify-center text-xs group-hover:bg-blue-600 group-hover:text-white transition shadow-2xs">
+                O
+              </div>
+              <div class="font-black text-xs text-slate-900 leading-tight">Arjun</div>
+              <div class="text-[9px] text-blue-700 font-bold uppercase">Sales Executive</div>
+            </div>
+
+            <!-- Card 2: Maya -->
+            <div id="card-assign-maya" onclick="selectAssigneeCard('Maya (Sales Executive)', 'maya@estate.com', 'maya')" class="p-2.5 rounded-2xl border-2 border-slate-200 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/50 cursor-pointer transition text-center space-y-1 group">
+              <div class="w-9 h-9 mx-auto rounded-xl bg-emerald-100 text-emerald-800 font-black flex items-center justify-center text-xs group-hover:bg-emerald-600 group-hover:text-white transition shadow-2xs">
+                P
+              </div>
+              <div class="font-black text-slate-900 text-xs leading-tight">Maya</div>
+              <div class="text-[9px] text-emerald-700 font-bold uppercase">Sales Executive</div>
+            </div>
+
+            <!-- Card 3: Test -->
+            <div id="card-assign-test" onclick="selectAssigneeCard('Test (Sales Executive)', 'test@estate.com', 'test')" class="p-2.5 rounded-2xl border-2 border-slate-200 hover:border-amber-500 bg-slate-50 hover:bg-amber-50/50 cursor-pointer transition text-center space-y-1 group">
+              <div class="w-9 h-9 mx-auto rounded-xl bg-amber-100 text-amber-800 font-black flex items-center justify-center text-xs group-hover:bg-amber-600 group-hover:text-white transition shadow-2xs">
+                T
+              </div>
+              <div class="font-black text-slate-900 text-xs leading-tight">Test</div>
+              <div class="text-[9px] text-amber-700 font-bold uppercase">Sales Executive</div>
+            </div>
+
+            <!-- Card 4: Priya (Self-Assign / Manager) -->
+            <div id="card-assign-priya" onclick="selectAssigneeCard('Priya (Sales Manager)', 'priya@estate.com', 'priya')" class="p-2.5 rounded-2xl border-2 border-slate-200 hover:border-purple-500 bg-slate-50 hover:bg-purple-50/50 cursor-pointer transition text-center space-y-1 group">
+              <div class="w-9 h-9 mx-auto rounded-xl bg-purple-100 text-purple-800 font-black flex items-center justify-center text-xs group-hover:bg-purple-600 group-hover:text-white transition shadow-2xs">
+                D
+              </div>
+              <div class="font-black text-slate-900 text-xs leading-tight">Priya</div>
+              <div class="text-[9px] text-purple-700 font-bold uppercase">Self-Assign (Mgr)</div>
+            </div>
+          </div>
+
+          <!-- Hidden/Custom Fallback Select -->
+          <div class="pt-1">
+            <select id="assign-advisor-select" onchange="handleDropdownAssigneeChange()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500"></select>
+          </div>
+        </div>
+
+        <!-- 2. Action / Task to Perform -->
+        <div class="space-y-1.5 p-3 rounded-2xl bg-purple-50/60 border border-purple-200">
+          <label class="block text-[11px] font-extrabold uppercase text-purple-950 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check text-purple-600"></i> 2. Task Assignment:
+          </label>
+          
+          <select id="assign-task-type" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-500">
+            <option value="Immediate First Contact Call (Within 30 mins)">⚡ Immediate First Contact Call (Within 30 mins)</option>
+            <option value="Send WhatsApp Brochure &amp; Pricing">📄 Send WhatsApp Brochure &amp; Pricing</option>
+            <option value="Schedule Property Site Visit">🏢 Schedule Property Site Visit</option>
+            <option value="Budget &amp; Home Loan Consultation">💰 Budget &amp; Home Loan Consultation</option>
+            <option value="Follow-up on Proposal / Pricing">🎯 Follow-up on Proposal / Pricing</option>
+            <option value="High Priority Executive Callback">🔥 High Priority Executive Callback</option>
+          </select>
+
+          <!-- Task Deadline & Priority -->
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <div>
+              <label class="text-[10px] font-bold text-slate-700 uppercase">Task Due Date:</label>
+              <input type="date" id="assign-task-date" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs text-slate-900 font-semibold focus:outline-none focus:border-purple-500">
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-700 uppercase">Priority:</label>
+              <select id="assign-task-priority" class="w-full bg-white border border-slate-300 rounded-xl p-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-purple-500">
+                <option value="HIGH" selected>🔥 High Priority</option>
+                <option value="MEDIUM">⚡ Medium Priority</option>
+                <option value="NORMAL">Standard</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Manager Special Instructions -->
+          <div class="pt-1">
+            <label class="text-[10px] font-bold text-slate-700 uppercase">Manager Note / Instructions (Optional):</label>
+            <textarea id="assign-task-instructions" rows="2" placeholder="e.g. Buyer looking for 3BHK in East Bangalore Whitefield, budget 1.8 Cr. Call before 2 PM today..." class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-purple-500"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-700 hover:to-purple-900 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-paper-plane mr-1"></i> Dispatch Lead &amp; Task
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================= -->
+  <!-- 8B. BULK DISPATCH MODAL (PRIYA & ADMIN)                 -->
+  <!-- ======================================================= -->
+  <div id="modal-bulk-assign" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-lg w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-users-gear text-amber-600 text-base"></i>
+          <h3 class="font-black text-sm text-slate-900 uppercase">Bulk Lead Dispatch &amp; Allocation</h3>
+        </div>
+        <button onclick="closeBulkAssignModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <div class="space-y-3.5">
+        <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200 flex items-center justify-between text-xs font-bold text-amber-900">
+          <span>Unassigned Leads in Queue:</span>
+          <span id="bulk-unassigned-count" class="px-2.5 py-0.5 rounded-full bg-amber-500 text-white font-mono font-black text-xs">0</span>
+        </div>
+
+        <!-- Assignee Selection -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1 uppercase">Dispatch All Unassigned Leads To:</label>
+          <select id="bulk-target-advisor" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+            <option value="Arjun (Sales Executive)">👤 Arjun (Sales Executive)</option>
+            <option value="Maya (Sales Executive)">👤 Maya (Sales Executive)</option>
+            <option value="Test (Sales Executive)">👤 Test (Sales Executive)</option>
+            <option value="Priya (Sales Manager)">👤 Priya (Sales Manager - Self)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1 uppercase">Default Task Action:</label>
+          <select id="bulk-task-type" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+            <option value="Immediate First Contact Call (Within 30 mins)">⚡ Immediate First Contact Call (Within 30 mins)</option>
+            <option value="Send WhatsApp Brochure &amp; Pricing">📄 Send WhatsApp Brochure &amp; Pricing</option>
+            <option value="Schedule Property Site Visit">🏢 Schedule Property Site Visit</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1 uppercase">Dispatch Instructions Note:</label>
+          <textarea id="bulk-instructions" rows="2" placeholder="e.g. Fresh 99acres &amp; Meta inbound leads. Contact immediately today..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500"></textarea>
+        </div>
+
+        <button onclick="executeBulkAssignment()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-paper-plane"></i> Execute Bulk Allocation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 9. ENROLL NEW TEAM MEMBER MODAL (SUPER ADMIN)-->
+  <!-- ========================================== -->
+  <div id="modal-enroll-user" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-user-shield text-amber-600 text-base"></i>
+          <h3 class="font-black text-sm text-slate-900 uppercase">Enroll Executive / Advisor (RBAC)</h3>
+        </div>
+        <button onclick="closeEnrollUserModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <form id="form-enroll-user" onsubmit="handleEnrollUser(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Full Legal Name</label>
+          <input type="text" id="en-name" required placeholder="e.g. Vikramaditya Reddy" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Contact Phone (Required for Login)</label>
+          <div class="relative flex items-center">
+            <span class="absolute left-3 font-mono font-bold text-xs text-slate-500 border-r border-slate-300 pr-2">+91</span>
+            <input type="tel" id="en-phone" required maxlength="10" placeholder="Enter 10-digit mobile number" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-16 pr-3.5 py-2.5 text-xs text-slate-900 font-mono font-bold focus:outline-none focus:border-amber-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Role Authority</label>
+          <select id="en-role" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500">
+            <option value="SUPER_ADMIN">👑 Super Admin / CEO</option>
+            <option value="MANAGER">🛡️ Sales Manager (Priya)</option>
+            <option value="SALES" selected>💼 Sales Executive</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Assigned Territories / Projects</label>
+          <input type="text" id="en-projects" placeholder="e.g. Sobha Windsor, Sobha Neopolis, East Bangalore" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-amber-500">
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md mt-2">
+          <i class="fa-solid fa-user-check mr-1.5"></i> Enroll into Firestore RBAC
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 10. RESET USER PASSWORD MODAL (SUPER ADMIN)-->
+  <!-- ========================================== -->
+  <div id="modal-reset-pwd" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="max-w-sm w-full bg-white rounded-3xl p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-key text-amber-600 text-base"></i>
+          <h3 class="font-black text-sm text-slate-900 uppercase">Reset User Password</h3>
+        </div>
+        <button onclick="closeResetPwdModal()" class="text-slate-400 hover:text-slate-700 transition"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+
+      <form id="form-reset-pwd" onsubmit="handleSaveResetPassword(event)" class="space-y-3">
+        <input type="hidden" id="reset-user-id">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Target Executive / User</label>
+          <div id="reset-user-name" class="p-2.5 bg-slate-100 rounded-xl text-xs font-black text-slate-800"></div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">New Secure Password</label>
+          <input type="text" id="reset-new-password" required placeholder="Enter new password..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-mono font-medium focus:outline-none focus:border-amber-500">
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition shadow-md mt-2">
+          <i class="fa-solid fa-lock mr-1.5"></i> Update Password in Firestore
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Master Application Script -->
+  <script src="/app.js"></script>
+</body>
+</html>
+
